@@ -19,6 +19,8 @@
     "start": "webpack-dev-server --open"
   },
   "dependencies": {
-    "core-js": "^2.5.3"
+    "core-js": "^2.5.3",
+    "d3": "^4.12.2",
+    "topojson-client": "^3.0.0"
   }
 }
