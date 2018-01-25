@@ -2,3 +2,16 @@ body {
   background-color: #333;
   color: white;
 }
+
+.centered {
+  height: 66vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
