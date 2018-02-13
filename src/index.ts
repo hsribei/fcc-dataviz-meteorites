@@ -7,11 +7,15 @@ const width = 960,
   rotate = 50,
   maxLat = 83;
 
+let svg = null;
+
 const projection = d3
   .geoMercator()
   .rotate([rotate, 0])
   .scale(1)
   .translate([width / 2, height / 2]);
+
+const path = d3.geoPath(projection);
 
 // Find the top left and bottom right of current projection
 function mercatorBounds(projection, maxLat) {
@@ -35,21 +39,22 @@ const zoom = d3
   .on("zoom", redraw);
 
 // Track last translation and scaling event we processed
-let lastTranslate = [0, 0],
+let lastTranslate = { x: 0, y: 0 },
   lastScale = null;
 
 function redraw() {
   if (d3.event) {
-    const scale = d3.event.scale,
-      translate = d3.event.translate;
+    const transform = d3.event.transform;
+    const scale = transform.k;
+    const translate = (({ x, y }) => ({ x, y }))(transform); // pick x and y
 
     // If scaling changes, ignore translation (otherwise touch zooms are
     // weird)
     if (scale != lastScale) {
       projection.scale(scale);
     } else {
-      let dx = translate[0] - lastTranslate[0],
-        dy = translate[1] - lastTranslate[1];
+      let dx = translate.x - lastTranslate.x,
+        dy = translate.y - lastTranslate.y;
       const yaw = projection.rotate()[0],
         tp = projection.translate();
 
@@ -75,19 +80,20 @@ function redraw() {
     lastScale = scale;
     lastTranslate = translate;
   }
+
+  svg.selectAll("path").attr("d", path);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  const path = d3.geoPath(projection);
-
-  const svg = d3.select("svg").call(zoom);
+  svg = d3.select("svg").call(zoom);
 
   d3.json("https://unpkg.com/world-atlas@1/world/110m.json", (error, world) => {
     if (error) throw error;
+    const countriesData = topojson.feature(world, world.objects.countries);
 
     svg
       .append("path")
-      .attr("d", path(topojson.feature(world, world.objects.countries)))
+      .data([countriesData])
       .attr("fill", "white")
       .attr("stroke", "#333");
 
