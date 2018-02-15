@@ -1,11 +1,11 @@
-import "./style.css";
 import * as d3 from "d3";
 import * as topojson from "topojson-client";
+import "./style.css";
 
-const width = 960,
-  height = 500,
-  rotate = 50,
-  maxLat = 83;
+const width = 960;
+const height = 500;
+const rotate = 50;
+const maxLat = 83;
 
 let svg = null;
 
@@ -18,18 +18,18 @@ const projection = d3
 const path = d3.geoPath(projection);
 
 // Find the top left and bottom right of current projection
-function mercatorBounds(projection, maxLat) {
-  const yaw = projection.rotate()[0],
-    xyMax = projection([-yaw + 180 - 1e-6, -maxLat]),
-    xyMin = projection([-yaw - 180 + 1e-6, maxLat]);
+function mercatorBounds() {
+  const yaw = projection.rotate()[0];
+  const xyMax = projection([-yaw + 180 - 1e-6, -maxLat]);
+  const xyMin = projection([-yaw - 180 + 1e-6, maxLat]);
 
   return [xyMin, xyMax];
 }
 
 // Set up the scale extent and initial scale for the projection
-const b = mercatorBounds(projection, maxLat),
-  s = width / (b[1][0] - b[0][0]),
-  scaleExtent = [s, 10 * s];
+const b = mercatorBounds();
+const s = width / (b[1][0] - b[0][0]);
+const scaleExtent = [s, 10 * s];
 
 projection.scale(scaleExtent[0]);
 
@@ -39,8 +39,8 @@ const zoom = d3
   .on("zoom", redraw);
 
 // Track last translation and scaling event we processed
-let lastTranslate = { x: 0, y: 0 },
-  lastScale = null;
+let lastTranslate = { x: 0, y: 0 };
+let lastScale = null;
 
 function redraw() {
   if (d3.event) {
@@ -53,17 +53,14 @@ function redraw() {
     if (scale != lastScale) {
       projection.scale(scale);
     } else {
-      let dx = translate.x - lastTranslate.x,
-        dy = translate.y - lastTranslate.y;
-      const yaw = projection.rotate()[0],
-        tp = projection.translate();
+      let dx = translate.x - lastTranslate.x;
+      let dy = translate.y - lastTranslate.y;
+      const yaw = projection.rotate()[0];
+      const tp = projection.translate();
 
       // Use x translation to rotate based on current scale
-      projection.rotate([
-        yaw + 360.0 * dx / width * scaleExtent[0] / scale,
-        0,
-        0
-      ]);
+      const dYaw = 360.0 * dx / width * scaleExtent[0] / scale; // in degrees
+      projection.rotate([yaw + dYaw, 0, 0]);
 
       // Use y translation to translate projection, clamped by min/max
       const b = mercatorBounds(projection, maxLat);
@@ -88,7 +85,9 @@ document.addEventListener("DOMContentLoaded", () => {
   svg = d3.select("svg").call(zoom);
 
   d3.json("https://unpkg.com/world-atlas@1/world/110m.json", (error, world) => {
-    if (error) throw error;
+    if (error) {
+      throw error;
+    }
     const countriesData = topojson.feature(world, world.objects.countries);
 
     svg
