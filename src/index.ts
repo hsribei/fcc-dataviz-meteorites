@@ -66,10 +66,21 @@ document.addEventListener("DOMContentLoaded", () => {
       .attr("stroke", "#333");
 
     svg.selectAll(".map").attr("d", path);
+    const mass = d => +d.properties.mass;
+
+    const radius = d3
+      .scaleSqrt()
+      .domain(d3.extent(meteorites.features, mass))
+      .range([2, 20]);
 
     svg
-      .append("path")
-      .datum(meteorites)
-      .attr("d", path);
+      .append("g")
+      .attr("class", "bubble")
+      .selectAll("circle")
+      .data(meteorites.features)
+      .enter()
+      .append("circle")
+      .attr("transform", d => `translate(${path.centroid(d)})`)
+      .attr("r", d => radius(mass(d)));
   }
 });
