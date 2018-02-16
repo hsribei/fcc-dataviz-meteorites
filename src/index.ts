@@ -39,8 +39,9 @@ const zoom = d3
   .on("zoom", redraw);
 
 // Track last translation and scaling event we processed
-let lastTranslate = { x: 0, y: 0 };
-let lastScale = null;
+let lastTranslate = projection.translate();
+lastTranslate = { x: lastTranslate[0], y: lastTranslate[1] };
+let lastScale = projection.scale();
 
 function redraw() {
   if (d3.event) {
@@ -50,6 +51,8 @@ function redraw() {
 
     // If scaling changes, ignore translation (otherwise touch zooms are
     // weird)
+    console.log(lastScale, scale);
+    console.log(lastTranslate, translate);
     if (scale != lastScale) {
       projection.scale(scale);
     } else {
@@ -60,16 +63,17 @@ function redraw() {
 
       // Use x translation to rotate based on current scale
       const dYaw = 360.0 * dx / width * scaleExtent[0] / scale; // in degrees
+      console.log(transform, dYaw);
       projection.rotate([yaw + dYaw, 0, 0]);
 
       // Use y translation to translate projection, clamped by min/max
-      const b = mercatorBounds(projection, maxLat);
-      if (b[0][1] + dy > 0) {
-        dy = -b[0][1];
-      } else if (b[1][1] + dy < height) {
-        dy = height - b[1][1];
-      }
-      projection.translate(tp[0], tp[1] + dy);
+      // const b = mercatorBounds(projection, maxLat);
+      // if (b[0][1] + dy > 0) {
+      //   dy = -b[0][1];
+      // } else if (b[1][1] + dy < height) {
+      //   dy = height - b[1][1];
+      // }
+      // projection.translate(tp[0], tp[1] + dy);
     }
 
     // Save last values. Resetting zoom.translate() and scale() would seem
