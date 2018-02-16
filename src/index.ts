@@ -43,7 +43,16 @@ document.addEventListener("DOMContentLoaded", () => {
     .call(zoom)
     .append("g");
 
-  d3.json("https://unpkg.com/world-atlas@1/world/110m.json", (error, world) => {
+  d3
+    .queue()
+    .defer(d3.json, "https://unpkg.com/world-atlas@1/world/110m.json")
+    .defer(
+      d3.json,
+      "https://raw.githubusercontent.com/FreeCodeCamp/ProjectReferenceData/master/meteorite-strike-data.json"
+    )
+    .await(ready);
+
+  function ready(error, world, meteorites) {
     if (error) {
       throw error;
     }
@@ -51,11 +60,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     svg
       .append("path")
+      .attr("class", "map")
       .data([countriesData])
       .attr("fill", "white")
       .attr("stroke", "#333");
 
-    svg.selectAll("path").attr("d", path);
-    // redraw();
-  });
+    svg.selectAll(".map").attr("d", path);
+  }
 });
