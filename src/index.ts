@@ -66,5 +66,10 @@ document.addEventListener("DOMContentLoaded", () => {
       .attr("stroke", "#333");
 
     svg.selectAll(".map").attr("d", path);
+
+    svg
+      .append("path")
+      .datum(meteorites)
+      .attr("d", path);
   }
 });
