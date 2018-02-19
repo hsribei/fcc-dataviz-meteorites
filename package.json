@@ -8,6 +8,7 @@
   "description": "",
   "devDependencies": {
     "css-loader": "^0.28.9",
+    "gh-pages": "^1.1.0",
     "style-loader": "^0.19.1",
     "ts-loader": "^3.2.0",
     "typescript": "^2.6.2",
@@ -15,6 +16,8 @@
     "webpack-dev-server": "^2.11.0"
   },
   "scripts": {
+    "build": "webpack",
+    "deploy": "gh-pages -d dist",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "webpack-dev-server --open"
   },
