@@ -1,11 +1,14 @@
 import * as d3 from "d3";
 import * as topojson from "topojson-client";
+import { Spinner } from "spin.js";
 import "./style.css";
 
 const width = 960;
 const height = 500;
 const rotate = 50;
 const maxLat = 83;
+
+let spinner;
 
 let svg = null;
 
@@ -38,6 +41,9 @@ const zoom = d3.zoom().on("zoom", () => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
+  const content = d3.select("#content");
+  spinner = new Spinner({ color: "white", top: "33%" }).spin(content.node());
+
   svg = d3
     .select("svg")
     .call(zoom)
@@ -53,6 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
     .await(ready);
 
   function ready(error, world, meteorites) {
+    spinner.stop();
     if (error) {
       throw error;
     }
