@@ -17,6 +17,6 @@ body {
 }
 
 .bubble {
-  fill: tomato;
+  fill: red;
   fill-opacity: 0.5;
 }

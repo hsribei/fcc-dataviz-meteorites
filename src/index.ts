@@ -73,14 +73,44 @@ document.addEventListener("DOMContentLoaded", () => {
       .domain(d3.extent(meteorites.features, mass))
       .range([2, 20]);
 
+    function title(d) {
+      const name = d.properties.name;
+      const year = new Date(d.properties.year).getFullYear();
+      const weight = d3.format(",")(+d.properties.mass / 1000);
+      return `This meteor named "${name}" fell in ${year}, weighing ${weight} kg.`;
+    }
+
+    function biggerFirstToAvoidOcclusion(a, b) {
+      return b.properties.mass - a.properties.mass;
+    }
+
+    const transform = d => {
+      const centroid = path.centroid(d);
+      return `translate(${centroid})`;
+    };
+
+    const removeWithoutLocation = d => !!d.geometry;
+
     svg
       .append("g")
       .attr("class", "bubble")
       .selectAll("circle")
-      .data(meteorites.features)
+      .data(
+        meteorites.features
+          .filter(removeWithoutLocation)
+          .sort(biggerFirstToAvoidOcclusion)
+      )
       .enter()
       .append("circle")
-      .attr("transform", d => `translate(${path.centroid(d)})`)
-      .attr("r", d => radius(mass(d)));
+      .attr("transform", transform)
+      .attr("r", d => radius(mass(d)))
+      .on("mouseover", () => {
+        d3.select(d3.event.target).attr("style", "stroke: white");
+      })
+      .on("mouseout", () => {
+        d3.select(d3.event.target).attr("style", "stroke: none");
+      })
+      .append("title")
+      .text(title);
   }
 });
